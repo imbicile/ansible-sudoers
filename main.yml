@@ -1,0 +1,29 @@
+---
+- hosts:
+    - all
+  roles:
+    - { role: ansible-users, become: true }
+
+  # Create users list
+  vars:
+    - name: Create users
+      users:
+        - username: imbicile
+          name: imbicile S.V.
+          groups:
+            - sudo
+            - users
+          shell: /bin/bash
+          ssh_key:
+            - "ssh-rsa blablalba_pub_ssh_key"
+
+  # Make sudoers no ask pass
+  tasks:
+    - name: Validate the sudoers file before saving
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: "^%sudo"
+        line: "%sudo ALL=(ALL:ALL) NOPASSWD: ALL"
+        validate: "visudo -cf %s"
+      become: yes
